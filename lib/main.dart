@@ -1,4 +1,6 @@
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() => runApp(MyApp());
 
@@ -43,10 +45,38 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+void _ScanText() async {
+
+  var imageFile = await ImagePicker.pickImage(source: ImageSource.camera);
+  
+  final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(imageFile);
+  final TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();
+  final VisionText visionText = await textRecognizer.processImage(visionImage);
+
+  print(visionText.text);
+  for (TextBlock block in visionText.blocks) {
+
+    // final Rectangle<int> boundingBox = block.boundingBox;
+    // final List<Point<int>> cornerPoints = block.cornerPoints;
+    print(block.text);
+    final List<RecognizedLanguage> languages = block.recognizedLanguages;
+
+    for (TextLine line in block.lines) {
+      // Same getters as TextBlock
+      print(line.text);
+      for (TextElement element in line.elements) {
+        // Same getters as TextBlock
+        print(element.text);
+      }
+    }
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
+    _ScanText();
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below

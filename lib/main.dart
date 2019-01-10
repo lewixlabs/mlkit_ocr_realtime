@@ -120,30 +120,28 @@ class _CameraAppState extends State<CameraPage> {
 
     print("scanning!...");
 
-    final FirebaseVisionImageMetadata metadata =
-        FirebaseVisionImageMetadata(
-      rawFormat: 35,
-      size: const Size(1.0, 1.0),
-      planeData: <FirebaseVisionImagePlaneMetadata>[
-        FirebaseVisionImagePlaneMetadata(
-          bytesPerRow: 1000,
-          height: 480,
-          width: 480,
-        ),
-      ],
-    );
-
-    // final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
-    //   rawFormat: availableImage.format.raw,
-    //   size: Size(1.0, 1.0),
+    // final FirebaseVisionImageMetadata metadata =
+    //     FirebaseVisionImageMetadata(
+    //   rawFormat: 35,
+    //   size: const Size(1.0, 1.0),
     //   planeData: <FirebaseVisionImagePlaneMetadata>[
     //     FirebaseVisionImagePlaneMetadata(
-    //       bytesPerRow: availableImage.planes[0].bytesPerRow,
-    //       height: availableImage.planes[0].height,
-    //       width: availableImage.planes[0].width,
+    //       bytesPerRow: 1000,
+    //       height: 480,
+    //       width: 480,
     //     ),
     //   ],
     // );
+
+    final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
+      rawFormat: availableImage.format.raw,
+      size: Size(1.0, 1.0),
+      planeData: availableImage.planes.map((currentPlane) => FirebaseVisionImagePlaneMetadata(
+        bytesPerRow: currentPlane.bytesPerRow,
+        height: currentPlane.height,
+        width: currentPlane.width
+        )).toList()
+      );
 
     final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, metadata);
     final TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();

@@ -1,156 +1,171 @@
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:flutter/services.dart';
+import 'package:camera/camera.dart';
+import 'dart:async';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 
-void main() => runApp(MyApp());
+List<CameraDescription> cameras;
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+Future<void> main() async {
+  cameras = await availableCameras();
+  runApp(OcrApp());
+}
+
+class OcrApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+      title: "Flutter OCR",
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Flutter OCR"),
+        ),
+        body: CameraPage(),
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class CameraPage extends StatefulWidget {
+  @override
+  _CameraAppState createState() => _CameraAppState();
+}
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class _CameraAppState extends State<CameraPage> {
+  CameraController controller;
+  bool _isScanBusy = false;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-void _scanText() async {
-
-  if (Platform.isAndroid){
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft
-    ]);
-  }
-
-  var imageFile = await ImagePicker.pickImage(source: ImageSource.camera);
-
-  if (Platform.isAndroid){
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp
-    ]);
-  }
-
-  
-  final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(imageFile);
-  final TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();
-  final VisionText visionText = await textRecognizer.processImage(visionImage);
-
-  print(visionText.text);
-  for (TextBlock block in visionText.blocks) {
-
-    // final Rectangle<int> boundingBox = block.boundingBox;
-    // final List<Point<int>> cornerPoints = block.cornerPoints;
-    print(block.text);
-    final List<RecognizedLanguage> languages = block.recognizedLanguages;
-
-    for (TextLine line in block.lines) {
-      // Same getters as TextBlock
-      print(line.text);
-      for (TextElement element in line.elements) {
-        // Same getters as TextBlock
-        print(element.text);
+  void initState() {
+    super.initState();
+    controller = CameraController(cameras[0], ResolutionPreset.medium);
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
       }
-    }
-  }
-}
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+      // controller.startImageStream((CameraImage availableImage) {
+      //   controller.stopImageStream();
+      //   _scanText(availableImage);
+      // });
 
-  void _incrementCounter() {
-    _scanText();
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      setState(() {});
     });
   }
 
   @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+    if (!controller.value.isInitialized) {
+      return Container();
+    }
+    return Column(
+          children: [
+            Expanded(
+              child: _cameraPreviewWidget()
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,              
+              children: <Widget>[
+                MaterialButton(
+                  child: Text("Start Scanning"),
+                  textColor: Colors.white,
+                  color: Colors.blue,
+                  onPressed: () async {
+                    await controller.startImageStream((CameraImage availableImage) {
+                      //controller.stopImageStream();
+
+                      if (!_isScanBusy)
+                        _scanText(availableImage);
+                    });
+                  }
+                ),
+                MaterialButton(
+                  child: Text("Stop Scanning"),
+                  textColor: Colors.white,
+                  color: Colors.red,
+                  onPressed: () async => await controller.stopImageStream()
+                )
+              ]
+            ) 
+          ]
     );
+            
+  }
+
+    Widget _cameraPreviewWidget() {
+    if (controller == null || !controller.value.isInitialized) {
+      return const Text(
+        'Tap a camera',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24.0,
+          fontWeight: FontWeight.w900,
+        ),
+      );
+    } else {
+      return AspectRatio(
+        aspectRatio: controller.value.aspectRatio,
+        child: CameraPreview(controller),
+      );
+    }
+  }
+
+  void _scanText(CameraImage availableImage) async {
+    _isScanBusy = true;
+
+    print("scanning!...");
+
+    final FirebaseVisionImageMetadata metadata =
+        FirebaseVisionImageMetadata(
+      rawFormat: 35,
+      size: const Size(1.0, 1.0),
+      planeData: <FirebaseVisionImagePlaneMetadata>[
+        FirebaseVisionImagePlaneMetadata(
+          bytesPerRow: 1000,
+          height: 480,
+          width: 480,
+        ),
+      ],
+    );
+
+    // final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
+    //   rawFormat: availableImage.format.raw,
+    //   size: Size(1.0, 1.0),
+    //   planeData: <FirebaseVisionImagePlaneMetadata>[
+    //     FirebaseVisionImagePlaneMetadata(
+    //       bytesPerRow: availableImage.planes[0].bytesPerRow,
+    //       height: availableImage.planes[0].height,
+    //       width: availableImage.planes[0].width,
+    //     ),
+    //   ],
+    // );
+
+    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, metadata);
+    final TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();
+    final VisionText visionText = await textRecognizer.processImage(visionImage);
+
+    print(visionText.text);
+    for (TextBlock block in visionText.blocks) {
+      // final Rectangle<int> boundingBox = block.boundingBox;
+      // final List<Point<int>> cornerPoints = block.cornerPoints;
+      print(block.text);
+      final List<RecognizedLanguage> languages = block.recognizedLanguages;
+
+      for (TextLine line in block.lines) {
+        // Same getters as TextBlock
+        print(line.text);
+        for (TextElement element in line.elements) {
+          // Same getters as TextBlock
+          print(element.text);
+        }
+      }
+    }
+
+    _isScanBusy = false;
   }
 }

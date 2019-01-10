@@ -1,4 +1,4 @@
-# mlkit_ocr_realtime
+# Flutter OCR realtime
 
 A new Flutter application to show mlkit ocr feature
 

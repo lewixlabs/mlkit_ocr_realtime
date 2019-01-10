@@ -1,4 +1,4 @@
-package cloud.llabs.mlkitocrrealtime;
+package cloud.llabs.flutter.mlkit.ocr;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

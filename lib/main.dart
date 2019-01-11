@@ -120,19 +120,6 @@ class _CameraAppState extends State<CameraPage> {
 
     print("scanning!...");
 
-    // final FirebaseVisionImageMetadata metadata =
-    //     FirebaseVisionImageMetadata(
-    //   rawFormat: 35,
-    //   size: const Size(1.0, 1.0),
-    //   planeData: <FirebaseVisionImagePlaneMetadata>[
-    //     FirebaseVisionImagePlaneMetadata(
-    //       bytesPerRow: 1000,
-    //       height: 480,
-    //       width: 480,
-    //     ),
-    //   ],
-    // );
-
     /*
      * https://firebase.google.com/docs/ml-kit/android/recognize-text
      * .setWidth(480)   // 480x360 is typically sufficient for

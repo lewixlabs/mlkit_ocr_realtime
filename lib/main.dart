@@ -133,14 +133,21 @@ class _CameraAppState extends State<CameraPage> {
     //   ],
     // );
 
+    /*
+     * https://firebase.google.com/docs/ml-kit/android/recognize-text
+     * .setWidth(480)   // 480x360 is typically sufficient for
+     * .setHeight(360)  // image recognition
+     */
+
     final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
       rawFormat: availableImage.format.raw,
-      size: Size(1.0, 1.0),
+      size: Size(480,360),//Size(availableImage.width.toDouble(),availableImage.height.toDouble()),
       planeData: availableImage.planes.map((currentPlane) => FirebaseVisionImagePlaneMetadata(
         bytesPerRow: currentPlane.bytesPerRow,
         height: currentPlane.height,
         width: currentPlane.width
-        )).toList()
+        )).toList(),
+      rotation: ImageRotation.rotation0
       );
 
     final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, metadata);

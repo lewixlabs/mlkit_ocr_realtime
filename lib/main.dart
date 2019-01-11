@@ -141,20 +141,20 @@ class _CameraAppState extends State<CameraPage> {
 
     final FirebaseVisionImageMetadata metadata = FirebaseVisionImageMetadata(
       rawFormat: availableImage.format.raw,
-      size: Size(480,360),//Size(availableImage.width.toDouble(),availableImage.height.toDouble()),
+      size: Size(availableImage.width.toDouble(),availableImage.height.toDouble()),
       planeData: availableImage.planes.map((currentPlane) => FirebaseVisionImagePlaneMetadata(
         bytesPerRow: currentPlane.bytesPerRow,
         height: currentPlane.height,
         width: currentPlane.width
         )).toList(),
-      rotation: ImageRotation.rotation0
+      rotation: ImageRotation.rotation90
       );
 
     final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(availableImage.planes[0].bytes, metadata);
     final TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();
     final VisionText visionText = await textRecognizer.processImage(visionImage);
 
-    print(visionText.text);
+    print("--------------------visionText:${visionText.text}");
     for (TextBlock block in visionText.blocks) {
       // final Rectangle<int> boundingBox = block.boundingBox;
       // final List<Point<int>> cornerPoints = block.cornerPoints;

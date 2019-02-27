@@ -37,7 +37,7 @@ class _CameraAppState extends State<CameraPage> {
   @override
   void initState() {
     super.initState();
-    controller = CameraController(cameras[0], ResolutionPreset.low);
+    controller = CameraController(cameras[0], ResolutionPreset.medium);
     controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -81,7 +81,12 @@ class _CameraAppState extends State<CameraPage> {
                 print("1 -------- isScanBusy = true");
                 _isScanBusy = true;
 
-                _isScanBusy = await OcrManager.scanText(availableImage);
+                OcrManager.scanText(availableImage).then(
+                  (dummy){
+                  _isScanBusy = false;
+                }).catchError((error){
+                  _isScanBusy = false;
+                });
               });
             }),
         MaterialButton(

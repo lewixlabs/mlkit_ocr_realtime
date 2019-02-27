@@ -58,6 +58,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    api 'com.google.firebase:firebase-ml-vision-image-label-model:16.2.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

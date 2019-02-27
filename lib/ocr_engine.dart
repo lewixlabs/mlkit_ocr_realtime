@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 
 class OcrManager {
 
-  static Future<bool> scanText(CameraImage availableImage) async {
+  static Future<dynamic> scanText(CameraImage availableImage) async {
 
     print("scanning!...");
 
@@ -66,7 +66,7 @@ class OcrManager {
     return FirebaseVisionImageMetadata(
       rawFormat: image.format.raw,
       size: Size(image.width.toDouble(), image.height.toDouble()),
-      rotation: ImageRotation.rotation270,
+      rotation: ImageRotation.rotation90,
       planeData: image.planes.map((Plane plane) {
         return FirebaseVisionImagePlaneMetadata(
           bytesPerRow: plane.bytesPerRow,

@@ -2,6 +2,10 @@
 
 A new Flutter application to show mlkit ocr feature
 
+Pre scanning       |  After scanning
+:-------------------------:|:-------------------------:
+![](https://github.com/lewixlabs/mlkit_ocr_realtime/blob/master/screenshots/Screenshot_20190227-174512.jpg)  |  ![](https://github.com/lewixlabs/mlkit_ocr_realtime/blob/master/screenshots/Screenshot_20190227-174609.jpg)
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

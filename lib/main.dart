@@ -33,6 +33,8 @@ class CameraPage extends StatefulWidget {
 class _CameraAppState extends State<CameraPage> {
   CameraController controller;
   bool _isScanBusy = false;
+  Timer _timer;
+  String _textDetected = "no text detected...";
 
   @override
   void initState() {
@@ -43,11 +45,6 @@ class _CameraAppState extends State<CameraPage> {
         return;
       }
 
-      // controller.startImageStream((CameraImage availableImage) {
-      //   controller.stopImageStream();
-      //   _scanText(availableImage);
-      // });
-
       setState(() {});
     });
   }
@@ -55,6 +52,7 @@ class _CameraAppState extends State<CameraPage> {
   @override
   void dispose() {
     controller?.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -65,36 +63,51 @@ class _CameraAppState extends State<CameraPage> {
     }
     return Column(children: [
       Expanded(child: _cameraPreviewWidget()),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
-        MaterialButton(
-            child: Text("Start Scanning"),
-            textColor: Colors.white,
-            color: Colors.blue,
-            onPressed: () async {
-              await controller.startImageStream((CameraImage availableImage) async {
-                //controller.stopImageStream();
-                if (_isScanBusy) {
-                  print("1.5 -------- isScanBusy, skipping...");
-                  return;
-                }
+      Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+          Text(_textDetected, style: TextStyle(fontStyle: FontStyle.italic,fontSize: 34),)
+        ]),
+      Container(
+        height: 100,
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
+          MaterialButton(
+              child: Text("Start Scanning"),
+              textColor: Colors.white,
+              color: Colors.blue,
+              onPressed: () async {
+                _timer = Timer.periodic(Duration(seconds: 3), (currentTimer) async {
+                  await controller.startImageStream((CameraImage availableImage) async {
+                    if (_isScanBusy) {
+                      print("1.5 -------- isScanBusy, skipping...");
+                      return;
+                    }
 
-                print("1 -------- isScanBusy = true");
-                _isScanBusy = true;
+                    print("1 -------- isScanBusy = true");
+                    _isScanBusy = true;
 
-                OcrManager.scanText(availableImage).then(
-                  (dummy){
-                  _isScanBusy = false;
-                }).catchError((error){
-                  _isScanBusy = false;
+                    OcrManager.scanText(availableImage).then((textVision) {
+                      setState(() {
+                        _textDetected = textVision ?? "";
+                      });
+
+                      _isScanBusy = false;
+                    }).catchError((error) {
+                      _isScanBusy = false;
+                    });
+                  });
                 });
-              });
-            }),
-        MaterialButton(
-            child: Text("Stop Scanning"),
-            textColor: Colors.white,
-            color: Colors.red,
-            onPressed: () async => await controller.stopImageStream())
-      ])
+              }),
+          MaterialButton(
+              child: Text("Stop Scanning"),
+              textColor: Colors.white,
+              color: Colors.red,
+              onPressed: () async {
+                _timer?.cancel();
+                await controller.stopImageStream();
+              })
+        ]),
+      ),
     ]);
   }
 

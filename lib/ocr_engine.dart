@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 
 class OcrManager {
 
-  static Future<dynamic> scanText(CameraImage availableImage) async {
+  static Future<String> scanText(CameraImage availableImage) async {
 
     print("scanning!...");
 
@@ -48,7 +48,7 @@ class OcrManager {
       }
     }
 
-    return false;
+    return visionText?.text;
   }
 
   /*
